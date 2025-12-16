@@ -6,6 +6,7 @@ import DashBoard from "./pages/dashboard";
 import New from "./pages/dashboard/new";
 import Login from "./pages/login";
 import Register from "./pages/register";
+import { PrivateRoute } from "./routes/private";
 
 const router = createBrowserRouter([
   {
@@ -21,11 +22,19 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard",
-        element: <DashBoard />,
+        element: (
+          <PrivateRoute>
+            <DashBoard />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/dashboard/new",
-        element: <New />,
+        element: (
+          <PrivateRoute>
+            <New />
+          </PrivateRoute>
+        ),
       },
     ],
   },
