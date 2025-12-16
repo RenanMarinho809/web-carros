@@ -13,7 +13,8 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
+import { AuthContext } from "../../contexts/Authcontexts";
 
 const schema = z.object({
   name: z.string().nonempty("O campo nome é obrigatório"),
@@ -30,7 +31,9 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Register() {
+  const { handleInfoUser } = useContext(AuthContext);
   const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -45,6 +48,12 @@ export default function Register() {
       .then(async (user) => {
         await updateProfile(user.user, {
           displayName: data.name,
+        });
+
+        handleInfoUser({
+          name: data.name,
+          email: data.email,
+          uid: user.user.uid,
         });
 
         console.log("Usuário cadastrado com sucesso");

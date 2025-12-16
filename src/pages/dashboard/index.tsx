@@ -1,3 +1,10 @@
+import Container from "../../components/container";
+import DashboardHeader from "../../components/painelheader";
+
 export default function DashBoard() {
-  return <div></div>;
+  return (
+    <Container>
+      <DashboardHeader />
+    </Container>
+  );
 }
