@@ -3,13 +3,8 @@ import { useForm } from "react-hook-form";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Input from "../../../components/input";
-import Container from "../../../components/container";
-import DashboardHeader from "../../../components/painelheader";
-import { useState, useContext } from "react";
-import { AuthContext } from "../../../contexts/Authcontexts";
-import { v4 as uuidv4 } from "uuid";
-import { storage, db } from "../../../services/firebaseconnection";
+import { v4 as uuidV4 } from "uuid";
+
 import {
   ref,
   uploadBytes,
@@ -17,6 +12,12 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { addDoc, collection } from "firebase/firestore";
+import { AuthContext } from "../../../contexts/Authcontexts";
+import { useContext, useState, type ChangeEvent } from "react";
+import { db, storage } from "../../../services/firebaseconnection";
+import Container from "../../../components/container";
+import DashboardHeader from "../../../components/painelheader";
+import Input from "../../../components/input";
 
 const schema = z.object({
   name: z.string().nonempty("O campo nome é obrigatório"),
@@ -36,7 +37,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface ImageProps {
+interface ImageItemProps {
   uid: string;
   name: string;
   previewUrl: string;
@@ -55,16 +56,16 @@ export default function New() {
     mode: "onChange",
   });
 
-  const [carImages, setCarImages] = useState<ImageProps[]>([]);
+  const [carImages, setCarImages] = useState<ImageItemProps[]>([]);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
       const image = e.target.files[0];
 
       if (image.type === "image/jpeg" || image.type === "image/png") {
         await handleUpload(image);
       } else {
-        alert("Envie uma imagem do tipo PNG ou JPEG");
+        alert("Envie uma imagem jpeg ou png!");
         return;
       }
     }
@@ -75,45 +76,30 @@ export default function New() {
       return;
     }
 
-    const currentuid = user.uid;
-    const uidImage = uuidv4();
+    const currentUid = user?.uid;
+    const uidImage = uuidV4();
 
-    const uploadRef = ref(storage, `images/${currentuid}/${uidImage}`);
+    const uploadRef = ref(storage, `images/${currentUid}/${uidImage}`);
 
     uploadBytes(uploadRef, image).then((snapshot) => {
-      getDownloadURL(snapshot.ref).then((downloadURL) => {
+      getDownloadURL(snapshot.ref).then((downloadUrl) => {
         const imageItem = {
-          uid: uidImage,
-          name: currentuid,
+          name: uidImage,
+          uid: currentUid,
           previewUrl: URL.createObjectURL(image),
-          url: downloadURL,
+          url: downloadUrl,
         };
 
-        setCarImages((image) => [...image, imageItem]);
+        setCarImages((images) => [...images, imageItem]);
       });
     });
   }
 
-  async function handleDeleteImage(item: ImageProps) {
-    const imageRef = ref(storage, item.url);
-
-    try {
-      await deleteObject(imageRef);
-
-      setCarImages((image) =>
-        image.filter((imageItem) => imageItem.uid !== item.uid)
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   function onSubmit(data: FormData) {
     if (carImages.length === 0) {
-      alert(`Envie imagem deste carro`);
+      alert("Envie alguma imagem deste carro!");
       return;
     }
-    console.log(data);
 
     const carListImages = carImages.map((car) => {
       return {
@@ -132,18 +118,33 @@ export default function New() {
       km: data.km,
       price: data.price,
       description: data.description,
-      createdAt: new Date(),
+      created: new Date(),
       owner: user?.name,
-      userId: user?.uid,
+      uid: user?.uid,
       images: carListImages,
     })
       .then(() => {
         reset();
         setCarImages([]);
+        console.log("CADASTRADO COM SUCESSO!");
       })
       .catch((error) => {
         console.log(error);
+        console.log("ERRO AO CADASTRAR NO BANCO");
       });
+  }
+
+  async function handleDeleteImage(item: ImageItemProps) {
+    const imagePath = `images/${item.uid}/${item.name}`;
+
+    const imageRef = ref(storage, imagePath);
+
+    try {
+      await deleteObject(imageRef);
+      setCarImages(carImages.filter((car) => car.url !== item.url));
+    } catch (err) {
+      console.log("ERRO AO DELETAR");
+    }
   }
 
   return (
@@ -167,19 +168,19 @@ export default function New() {
 
         {carImages.map((item) => (
           <div
-            key={item.uid}
+            key={item.name}
             className="w-full h-32 flex items-center justify-center relative"
           >
             <button
-              className="absolute top-2 right-3 cursor-pointer"
+              className="absolute"
               onClick={() => handleDeleteImage(item)}
             >
-              <FiTrash size={28} color="#fff" />
+              <FiTrash size={28} color="#FFF" />
             </button>
             <img
               src={item.previewUrl}
-              alt={item.name}
               className="rounded-lg w-full h-32 object-cover"
+              alt="Foto do carro"
             />
           </div>
         ))}
