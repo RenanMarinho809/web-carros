@@ -18,6 +18,7 @@ import { db, storage } from "../../../services/firebaseconnection";
 import Container from "../../../components/container";
 import DashboardHeader from "../../../components/painelheader";
 import Input from "../../../components/input";
+import toast from "react-hot-toast";
 
 const schema = z.object({
   name: z.string().nonempty("O campo nome é obrigatório"),
@@ -65,7 +66,7 @@ export default function New() {
       if (image.type === "image/jpeg" || image.type === "image/png") {
         await handleUpload(image);
       } else {
-        alert("Envie uma imagem jpeg ou png!");
+        toast.error("Envie uma imagem jpeg ou png!");
         return;
       }
     }
@@ -97,7 +98,7 @@ export default function New() {
 
   function onSubmit(data: FormData) {
     if (carImages.length === 0) {
-      alert("Envie alguma imagem deste carro!");
+      toast.error("Envie alguma imagem deste carro!");
       return;
     }
 
@@ -126,11 +127,11 @@ export default function New() {
       .then(() => {
         reset();
         setCarImages([]);
-        console.log("CADASTRADO COM SUCESSO!");
+        toast.success("CADASTRADO COM SUCESSO!");
       })
       .catch((error) => {
         console.log(error);
-        console.log("ERRO AO CADASTRAR NO BANCO");
+        toast.error("ERRO AO CADASTRAR NO BANCO");
       });
   }
 
