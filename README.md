@@ -40,25 +40,6 @@ Este projeto foi construído com as seguintes ferramentas e bibliotecas:
 
 ---
 
-webcarros/
-├── src/
-│ ├── components/ # Componentes reutilizáveis (.tsx)
-│ ├── pages/ # Páginas da aplicação (.tsx)
-│ ├── services/ # Configuração do Firebase (.ts)
-│ ├── styles/ # Estilos globais
-│ ├── types/ # Tipagens e interfaces globais 📘
-│ ├── hooks/ # Hooks personalizados
-│ ├── utils/ # Funções utilitárias
-│ ├── App.tsx # Componente principal
-│ ├── main.tsx # Ponto de entrada da aplicação
-│ └── vite-env.d.ts # Tipos do Vite
-├── public/
-├── tsconfig.json # Configuração do TypeScript
-├── package.json
-└── README.md
-
----
-
 🔧 Configuração do Firebase
 
 Para rodar o projeto corretamente, é necessário:
